@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Карта</title>
-    <link rel="stylesheet" href="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <style>
         * {
             margin: 0;
@@ -218,9 +218,9 @@
                     dragging: true
                 }).setView([52.2297, 21.0122], 13);
 
-                // Добавление слоя OpenStreetMap
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap',
+                // Добавление слоя 2GIS
+                L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}&v=1', {
+                    attribution: '&copy; 2GIS',
                     maxZoom: 19,
                     minZoom: 3
                 }).addTo(map);
