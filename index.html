@@ -393,12 +393,16 @@
                 destinationLat, destinationLon
             );
 
-            // Добавляем кнопку "Проложить маршрут" в popup
+            // Добавляем кнопки выбора карт в popup
             walkDestinationMarker.bindPopup(
                 `<b>🎯 Точка назначения</b><br>` +
                 `Расстояние: ~${Math.round(actualDistance)}м<br>` +
                 `Время: ~${Math.round(actualDistance / 80)} мин<br>` +
-                `<button onclick="openRoute()" style="margin-top: 8px; padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%;">🗺️ Проложить маршрут</button>`
+                `<div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">` +
+                `<button onclick="openRoute('yandex')" style="padding: 8px 12px; background: #FC3F1D; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">🗺️ Яндекс.Карты</button>` +
+                `<button onclick="openRoute('2gis')" style="padding: 8px 12px; background: #31AC45; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">🗺️ 2GIS</button>` +
+                `<button onclick="openRoute('google')" style="padding: 8px 12px; background: #4285F4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">🗺️ Google Maps</button>` +
+                `</div>`
             ).openPopup();
 
             // Рисуем линию маршрута
@@ -425,8 +429,8 @@
             showToast(`Цель: ${Math.round(actualDistance)}м от вас!`);
         }
 
-        // Функция открытия маршрута в картах телефона
-        function openRoute() {
+        // Функция открытия маршрута в выбранных картах телефона
+        function openRoute(mapType) {
             if (!userLocation || !window.walkDestination) {
                 showToast('Сначала создайте маршрут');
                 return;
@@ -434,16 +438,30 @@
 
             const start = `${userLocation.lat},${userLocation.lon}`;
             const end = `${window.walkDestination.lat},${window.walkDestination.lon}`;
+            
+            let url;
+            let mapName;
 
-            // Создаем список ссылок для разных карт
-            const googleMaps = `https://www.google.com/maps/dir/?api=1&origin=${start}&destination=${end}&travelmode=walking`;
-            const yandexMaps = `https://yandex.ru/maps/?rtext=${start}~${end}&rtt=pd`;
-            const twoGis = `https://2gis.ru/routeSearch/rsType/pedestrian/from/${userLocation.lon},${userLocation.lat}/to/${window.walkDestination.lon},${window.walkDestination.lat}`;
+            switch(mapType) {
+                case 'yandex':
+                    url = `https://yandex.ru/maps/?rtext=${start}~${end}&rtt=pd`;
+                    mapName = 'Яндекс.Картах';
+                    break;
+                case '2gis':
+                    url = `https://2gis.ru/routeSearch/rsType/pedestrian/from/${userLocation.lon},${userLocation.lat}/to/${window.walkDestination.lon},${window.walkDestination.lat}`;
+                    mapName = '2GIS';
+                    break;
+                case 'google':
+                default:
+                    url = `https://www.google.com/maps/dir/?api=1&origin=${start}&destination=${end}&travelmode=walking`;
+                    mapName = 'Google Maps';
+                    break;
+            }
             
-            // Открываем универсальную ссылку (Google Maps работает везде)
-            window.open(googleMaps, '_blank');
+            // Открываем выбранную карту
+            window.open(url, '_blank');
             
-            showToast('Маршрут открыт в картах');
+            showToast(`Маршрут открыт в ${mapName}`);
         }
 
         // Функция вычисления расстояния между двумя точками (формула Гаверсина)
