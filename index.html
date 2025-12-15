@@ -371,6 +371,12 @@
             const destinationLat = userLocation.lat + deltaLat;
             const destinationLon = userLocation.lon + deltaLon;
 
+            // Сохраняем координаты назначения для кнопки маршрута
+            window.walkDestination = {
+                lat: destinationLat,
+                lon: destinationLon
+            };
+
             // Создаём маркер назначения
             walkDestinationMarker = L.marker([destinationLat, destinationLon], {
                 icon: L.divIcon({
@@ -387,10 +393,12 @@
                 destinationLat, destinationLon
             );
 
+            // Добавляем кнопку "Проложить маршрут" в popup
             walkDestinationMarker.bindPopup(
                 `<b>🎯 Точка назначения</b><br>` +
-                `Расстояние: ${Math.round(actualDistance)}м<br>` +
-                `<small>Примерно ${Math.round(actualDistance / 80)} мин ходьбы</small>`
+                `Расстояние: ~${Math.round(actualDistance)}м<br>` +
+                `Время: ~${Math.round(actualDistance / 80)} мин<br>` +
+                `<button onclick="openRoute()" style="margin-top: 8px; padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%;">🗺️ Проложить маршрут</button>`
             ).openPopup();
 
             // Рисуем линию маршрута
@@ -399,8 +407,8 @@
                 [destinationLat, destinationLon]
             ], {
                 color: '#ff4444',
-                weight: 3,
-                opacity: 0.7,
+                weight: 4,
+                opacity: 0.8,
                 dashArray: '10, 10'
             }).addTo(map);
 
@@ -415,6 +423,27 @@
             walkBtn.textContent = '🚶';
 
             showToast(`Цель: ${Math.round(actualDistance)}м от вас!`);
+        }
+
+        // Функция открытия маршрута в картах телефона
+        function openRoute() {
+            if (!userLocation || !window.walkDestination) {
+                showToast('Сначала создайте маршрут');
+                return;
+            }
+
+            const start = `${userLocation.lat},${userLocation.lon}`;
+            const end = `${window.walkDestination.lat},${window.walkDestination.lon}`;
+
+            // Создаем список ссылок для разных карт
+            const googleMaps = `https://www.google.com/maps/dir/?api=1&origin=${start}&destination=${end}&travelmode=walking`;
+            const yandexMaps = `https://yandex.ru/maps/?rtext=${start}~${end}&rtt=pd`;
+            const twoGis = `https://2gis.ru/routeSearch/rsType/pedestrian/from/${userLocation.lon},${userLocation.lat}/to/${window.walkDestination.lon},${window.walkDestination.lat}`;
+            
+            // Открываем универсальную ссылку (Google Maps работает везде)
+            window.open(googleMaps, '_blank');
+            
+            showToast('Маршрут открыт в картах');
         }
 
         // Функция вычисления расстояния между двумя точками (формула Гаверсина)
